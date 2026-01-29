@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDS-UPDRS Profesional Optimizada</title>
+    <style>
+        :root { 
+            --azul-oscuro: #0a2558; --azul-medio: #1e56a0; --azul-claro: #d6e4f0;
+            --gris-fondo: #f4f7f9; --blanco: #ffffff;
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--azul-claro); color: #333; margin: 0; padding: 10px; }
+        .container { max-width: 900px; margin: auto; background: var(--blanco); padding: 20px; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); }
+        
+        h1 { color: var(--azul-oscuro); text-align: center; font-size: 1.5em; border-bottom: 3px solid var(--azul-oscuro); padding-bottom: 10px; margin-top: 0; }
+        
+        .tabs { display: flex; justify-content: center; margin-bottom: 15px; gap: 4px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px; cursor: pointer; border: none; background: #dfe6e9; color: #636e72; font-weight: bold; border-radius: 6px; flex: 1; min-width: 75px; text-align: center; font-size: 0.8em; }
+        .tab-btn.active { background: var(--azul-oscuro); color: white; }
+
+        .bloque-clinico { background: var(--gris-fondo); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--azul-medio); }
+        .field label { font-weight: bold; font-size: 0.85em; color: var(--azul-oscuro); display: block; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.9em; }
+
+        .guion-paciente { background: #fffbe6; border: 1px solid #ffe58f; padding: 15px; border-radius: 6px; font-style: italic; font-size: 0.9em; margin-bottom: 15px; color: #2c3e50; line-height: 1.5; }
+        
+        .seccion-contenido { display: none; }
+        .seccion-contenido.active { display: block; }
+
+        .pregunta-card { border: 1px solid #e1e8ed; margin-bottom: 10px; border-radius: 8px; overflow: hidden; background: #fff; }
+        .titulo-preg { background: var(--azul-oscuro); color: var(--blanco); padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+        .subtotal-preg { background: var(--azul-claro); color: var(--azul-oscuro); padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+        
+        .cuerpo-preg { padding: 10px; }
+        .pregunta-entrevista { font-size: 0.85em; color: #555; margin-bottom: 8px; display: block; border-left: 3px solid var(--azul-claro); padding-left: 10px; }
+
+        .sub-item { margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; }
+        .sub-item label { display: block; font-size: 0.85em; font-weight: bold; color: var(--azul-medio); margin-bottom: 3px; }
+
+        .subtitulo-seccion { background: #eef2f7; padding: 8px; font-size: 0.9em; font-weight: bold; color: var(--azul-oscuro); margin: 15px 0 8px 0; border-radius: 4px; }
+
+        .calc-row { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 5px; }
+        .calc-input-group { display: flex; align-items: center; gap: 10px; font-size: 0.85em; }
+        .calc-input-group input { width: 60px; padding: 4px; }
+
+        .footer-totales { margin-top: 25px; padding: 20px; background: var(--azul-oscuro); color: white; border-radius: 10px; }
+        .totales-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; text-align: center; }
+        .total-item span { display: block; font-size: 1.1em; font-weight: bold; color: var(--azul-claro); }
+        .total-global-item { border-top: 1px solid #ffffff44; padding-top: 10px; margin-top: 10px; grid-column: 1 / -1; font-size: 1.2em; }
+
+        @media print {
+            .no-print, .tabs, .guion-paciente, .calc-row { display: none !important; }
+            .seccion-contenido { display: block !important; }
+            .pregunta-card.ne-hidden, .subtitulo-seccion.ne-hidden { display: none !important; }
+            .container { box-shadow: none; width: 100%; padding: 0; }
+            .pregunta-card { border: none; border-bottom: 1px solid #eee; border-radius: 0; margin-bottom: 5px; }
+            .titulo-preg { background: none; color: black; padding: 0; font-size: 10pt; }
+            .subtotal-preg { font-weight: bold; background: none; }
+            .cuerpo-preg { padding: 5px 0; }
+            .sub-item { border: none; margin: 0; padding: 0; }
+            .sub-item label { font-size: 9pt; display: inline; }
+            select { border: none; font-size: 9pt; background: transparent; -webkit-appearance: none; display: inline; width: auto; font-style: italic; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Escala MDS-UPDRS</h1>
+    
+    <div class="bloque-clinico no-print">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="field"><label>Paciente:</label><input type="text" id="nombre"></div>
+            <div class="field"><label>Fecha:</label><input type="date" id="fecha"></div>
+        </div>
+    </div>
+
+    <div class="tabs no-print">
+        <div class="tab-btn active" onclick="showTab('p1-box')">Parte I</div>
+        <div class="tab-btn" onclick="showTab('p2-box')">Parte II</div>
+        <div class="tab-btn" onclick="showTab('p3-box')">Parte III</div>
+        <div class="tab-btn" onclick="showTab('p4-box')">Parte IV</div>
+    </div>
+
+    <div id="p1-box" class="seccion-contenido active">
+        <div class="bloque-clinico no-print">
+            <div class="field"><label>Fuente de información:</label>
+                <select id="f-inf"><option>Paciente</option><option>Cuidador</option><option>Ambos</option></select>
+            </div>
+        </div>
+        <div class="guion-paciente no-print">
+            <strong>Instrucciones:</strong> Describa cómo se ha sentido la mayor parte del tiempo durante los últimos 7 días.
+        </div>
+        <div id="render-p1"></div>
+    </div>
+
+    <div id="p2-box" class="seccion-contenido">
+        <div id="render-p2"></div>
+    </div>
+
+    <div id="p3-box" class="seccion-contenido">
+        <div class="bloque-clinico no-print">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="field"><label>Levodopa:</label><select><option>Sí</option><option>No</option></select></div>
+                <div class="field"><label>Estado:</label><select><option>On</option><option>Off</option></select></div>
+            </div>
+            <div class="field" style="margin-top:10px;"><label>Última toma (horas):</label><input type="number" step="0.5"></div>
+        </div>
+        <div id="render-p3"></div>
+    </div>
+
+    <div id="p4-box" class="seccion-contenido">
+        <div id="render-p4"></div>
+    </div>
+
+    <div class="footer-totales">
+        <div class="totales-grid">
+            <div class="total-item">Parte I <span><small id="t1">NE</small> /52</span></div>
+            <div class="total-item">Parte II <span><small id="t2">NE</small> /52</span></div>
+            <div class="total-item">Parte III <span><small id="t3">NE</small> /132</span></div>
+            <div class="total-item">Parte IV <span><small id="t4">NE</small> /24</span></div>
+            <div class="total-item total-global-item">TOTAL EVALUADO <span id="t-global">0</span></div>
+        </div>
+        <button class="no-print" onclick="prepararImpresion()" style="width:100%; margin-top:15px; padding:12px; cursor:pointer; font-weight:bold; background: var(--azul-medio); color: white; border:none; border-radius:6px;">GENERAR REPORTE PDF</button>
+    </div>
+</div>
+
+<script>
+document.getElementById('fecha').valueAsDate = new Date();
+
+// --- DATOS AMPLIADOS ---
+const p1Data = [
+    { t: "1.1 Deterioro cognitivo", s:["Puntaje"], op: ["0: Normal. Sin problemas.", "1: Mínimo. Deterioro percibido por paciente/cuidador pero sin interferencia en funciones.", "2: Leve. Disfunción cognitiva evidente pero con mínima interferencia en actividades.", "3: Moderado. El deterioro interfiere significativamente sin impedir actividades.", "4: Grave. El deterioro impide realizar actividades o interacción social."] },
+    { t: "1.2 Alucinaciones y psicosis", s:["Puntaje"], op: ["0: Normal. Sin alucinaciones ni delirios.", "1: Mínimo. Ilusiones o alucinaciones no formadas (sombras o pasaje de objetos).", "2: Leve. Alucinaciones formadas (personas, animales) con introspección conservada.", "3: Moderado. Alucinaciones formadas sin introspección (el paciente cree que son reales).", "4: Grave. Delirios o paranoia que interfieren significativamente con el cuidado."] },
+    { t: "1.3 Ánimo depresivo", s:["Puntaje"], op: ["0: Normal. Sin ánimo depresivo.", "1: Mínimo. Episodios cortos de tristeza; no interfiere con actividades.", "2: Leve. Ánimo bajo presente muchos días pero no interfiere con la funcionalidad.", "3: Moderado. Depresión persistente que interfiere sin anular actividades.", "4: Grave. Depresión severa que impide las actividades normales o ideación suicida."] },
+    { t: "1.4 Ansiedad", s:["Puntaje"], op: ["0: Normal. Sin ansiedad.", "1: Mínimo. Sensación de nerviosismo o inquietud que no interfiere.", "2: Leve. Ansiedad persistente pero sin interferencia funcional clara.", "3: Moderado. Ansiedad que interfiere con actividades sociales o laborales.", "4: Grave. Crisis de angustia o ansiedad incapacitante que impide la vida normal."] },
+    { t: "1.5 Apatía", s:["Puntaje"], op: ["0: Normal. Sin apatía.", "1: Mínimo. Pérdida de iniciativa percibida pero sin cambios en actividades reales.", "2: Leve. Pérdida de interés en algunas actividades sociales o recreativas.", "3: Moderado. Pérdida clara de interés en la mayoría de actividades diarias.", "4: Grave. Apatía completa; el paciente está pasivo, retraído y sin interés."] },
+    { t: "1.6 S. Desregulación Dopaminérgica", s:["Puntaje"], op: ["0: Normal. Sin problemas.", "1: Mínimo. El paciente toma medicación extra ocasionalmente por cuenta propia.", "2: Leve. Uso excesivo de medicación con algunas consecuencias sociales (juego, compras).", "3: Moderado. Uso compulsivo de medicación con problemas claros en la vida diaria.", "4: Grave. Adicción severa a la medicación con comportamiento destructivo o psicosis."] },
+    { t: "1.7 Problemas de sueño", s:["Puntaje"], op: ["0: Normal. Sin problemas.", "1: Mínimo. Problemas presentes (insomnio, inquietud) pero no molestan.", "2: Leve. Dificultad para mantener el sueño; afecta descanso pero no el día.", "3: Moderado. El insomnio afecta claramente el funcionamiento y energía diaria.", "4: Grave. No puede dormir la mayor parte de la noche; incapacidad diurna."] },
+    { t: "1.8 Somnolencia diurna", s:["Puntaje"], op: ["0: Normal. Sin somnolencia.", "1: Mínimo. Somnolencia leve; puede resistirla sin dormirse.", "2: Leve. Se duerme en situaciones de relax total (TV, lectura).", "3: Moderado. Se duerme en situaciones activas como comiendo o conversando.", "4: Grave. Ataques de sueño frecuentes e incontrolables que impiden actividades."] },
+    { t: "1.9 Dolor y sensaciones", s:["Puntaje"], op: ["0: Normal. Sin molestias.", "1: Mínimo. Sensaciones (hormigueo, tirantez) presentes pero no molestan.", "2: Leve. Dolor o molestia que interfiere levemente en algunas actividades.", "3: Moderado. Dolor que interfiere claramente pero no impide la realización.", "4: Grave. Dolor severo que impide realizar la mayoría de las actividades."] },
+    { t: "1.10 Problemas urinarios", s:["Puntaje"], op: ["0: Normal. Sin problemas.", "1: Mínimo. Urgencia miccional o nicturia pero sin dificultad diaria.", "2: Leve. Urgencia que obliga a interrumpir actividades pero sin pérdidas.", "3: Moderado. Incluye pérdidas de orina (incontinencia) ocasionales.", "4: Grave. Pérdidas frecuentes; requiere protección constante (pañal/sonda)."] },
+    { t: "1.11 Estreñimiento", s:["Puntaje"], op: ["0: Normal. Sin problemas.", "1: Mínimo. Esfuerzo leve pero sin alterar actividades ni requerir laxantes.", "2: Leve. Estreñimiento que causa molestia física evidente; requiere medicación.", "3: Moderado. Interfiere con las actividades; requiere tratamientos frecuentes.", "4: Grave. Necesita ayuda física o manual para evacuar; impactación."] },
+    { t: "1.12 Mareo ortostático", s:["Puntaje"], op: ["0: Normal. Sin mareos.", "1: Mínimo. Mareo leve al levantarse que se resuelve rápido y no interfiere.", "2: Leve. Obliga a apoyarse o esperar para caminar pero sin interrumpir la marcha.", "3: Moderado. Obliga a sentarse o tumbarse para evitar el desmayo.", "4: Grave. Provoca caídas o síncopes (desmayos) frecuentes."] },
+    { t: "1.13 Fatiga", s:["Puntaje"], op: ["0: Normal. Sin fatiga.", "1: Mínimo. Fatiga leve (cansancio) que no interfiere con tareas diarias.", "2: Leve. Interfiere con algunas actividades exigentes o ejercicio.", "3: Moderado. Interfiere claramente con la vida diaria y tareas comunes.", "4: Grave. Fatiga severa que impide realizar tareas básicas de autocuidado."] }
+];
+
+const p2Data = [
+    { t: "2.1 Hablar", q: "¿Ha tenido problemas para hablar (volumen, claridad)?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Habla algo más suave o monótona; se entiende perfectamente.", "2: Leve. A veces tienen que pedirle que repita palabras aisladas.", "3: Moderado. Difícil de entender; tienen que pedirle que repita a diario.", "4: Grave. Ininteligible la mayor parte del tiempo."] },
+    { t: "2.2 Saliva y babeo", q: "¿Ha tenido habitualmente demasiada saliva o babeo?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Siente mucha saliva pero no llega a babear.", "2: Leve. Babeo únicamente durante el sueño.", "3: Moderado. Babeo escaso estando despierto; no requiere pañuelo constante.", "4: Grave. Babeo abundante; requiere uso constante de pañuelo o toallas."] },
+    { t: "2.3 Masticación y deglución", q: "¿Problemas para tragar pastillas o comida? ¿Se atraganta?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Siente lentitud al comer pero sin atragantarse.", "2: Leve. Requiere comida blanda o picada para no atragantarse.", "3: Moderado. Se ha atragantado al menos una vez en la última semana.", "4: Grave. Requiere sonda de alimentación o dieta líquida estricta."] },
+    { t: "2.4 Actividades para comer", q: "¿Problemas para usar cubiertos o cortar carne?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Algo más lento pero maneja todo sin ayuda ni derrames.", "2: Leve. Se le cae comida; requiere ayuda para tareas difíciles (cortar).", "3: Moderado. Requiere ayuda para muchas tareas durante la comida.", "4: Grave. Necesita que le den de comer."] },
+    { t: "2.5 Vestirse", q: "¿Problemas con botones, cremalleras o calzado?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Tarda más tiempo pero se viste solo completamente.", "2: Leve. Requiere ayuda para botones, cordones o cremalleras.", "3: Moderado. Requiere ayuda para la mayoría de las prendas.", "4: Grave. Necesita que lo vistan casi totalmente."] },
+    { t: "2.6 Higiene", q: "¿Lentitud o ayuda para bañarse o afeitarse?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Lento pero independiente en todo.", "2: Leve. Requiere ayuda para algunas tareas específicas (espalda, pies).", "3: Moderado. Requiere ayuda para tareas importantes de higiene.", "4: Grave. Dependencia completa para el aseo personal."] },
+    { t: "2.7 Escritura", q: "¿Su letra es más pequeña o difícil de leer?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Más pequeña o lenta pero legible para todos.", "2: Leve. Algunas palabras son difíciles de leer incluso para usted.", "3: Moderado. La mayoría de lo que escribe es ilegible.", "4: Grave. No puede escribir nada que se entienda."] },
+    { t: "2.8 Hobbies y ocio", q: "¿Limitación en sus actividades favoritas?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Lento pero participa en todo lo que le gusta.", "2: Leve. Algunas limitaciones que lo obligan a elegir actividades.", "3: Moderado. Incapaz de realizar la mayoría de sus hobbies previos.", "4: Grave. No puede realizar ninguna actividad de ocio."] },
+    { t: "2.9 Girarse en la cama", q: "¿Problemas para cambiar de posición de noche?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Algo más difícil o lento pero sin ayuda.", "2: Leve. Mucha dificultad; requiere ayuda o soportes ocasionales.", "3: Moderado. Requiere ayuda para girarse la mayoría de las noches.", "4: Grave. Incapaz de girarse o acomodarse sin ayuda total."] },
+    { t: "2.10 Temblor", q: "¿Qué tanto interfiere el temblor en su vida?", s:["Puntaje"], op: ["0: Normal. Sin temblor.", "1: Mínimo. Presente pero no afecta ninguna actividad.", "2: Leve. El temblor interfiere con algunas actividades finas.", "3: Moderado. Interfiere con muchas actividades (comer, beber).", "4: Grave. Impide realizar la mayoría de las actividades diarias."] },
+    { t: "2.11 Levantarse de silla/cama", q: "¿Necesita ayuda o varios intentos para pararse?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Lento pero se levanta al primer intento sin ayuda.", "2: Leve. Necesita varios intentos o usar mucho los brazos.", "3: Moderado. Requiere ayuda de otra persona o andador.", "4: Grave. Totalmente dependiente para levantarse."] },
+    { t: "2.12 Caminar y equilibrio", q: "¿Ha notado inestabilidad o arrastre de pies?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Lento o arrastra los pies; no usa bastón.", "2: Leve. Requiere bastón o andador ocasional por seguridad.", "3: Moderado. Requiere andador de forma constante para no caer.", "4: Grave. Solo puede caminar con ayuda física de otra persona."] },
+    { t: "2.13 Congelaciones (Freezing)", q: "¿Siente que los pies se le pegan al suelo?", s:["Puntaje"], op: ["0: Normal.", "1: Mínimo. Bloqueo breve; retoma la marcha solo y fácil.", "2: Leve. Bloqueo que dificulta el reinicio; puede perder el equilibrio.", "3: Moderado. Bloqueos frecuentes que requieren ayuda o trucos para seguir.", "4: Grave. Bloqueos que le impiden caminar la mayor parte del tiempo."] }
+];
+
+const p3Data = [
+    { t: "3.1 Lenguaje", s:["Evaluación"], op: ["0: Normal.", "1: Mínimo. Pérdida de expresión o volumen; 100% comprensible.", "2: Leve. Monótono, algo atropellado; comprensible pero con esfuerzo.", "3: Moderado. Gravemente afectado; difícil de entender frases completas.", "4: Grave. La mayoría de las palabras son ininteligibles."] },
+    { t: "3.2 Expresión facial", s:["Evaluación"], op: ["0: Normal.", "1: Mínimo. Disminución del parpadeo o ligera hipomimia.", "2: Leve. Expresión reducida en la parte inferior de la cara (boca).", "3: Moderado. Cara de máscara; labios abiertos la mayor parte del tiempo.", "4: Grave. Expresión facial casi nula; boca abierta > 6 mm."] },
+    { t: "3.3 Rigidez (Cuello/Extremidades)", s:["Cuello", "MSD", "MSI", "MID", "MII"], op: ["0: Normal.", "1: Mínimo. Solo detectable con movimientos de activación.", "2: Leve. Detectable en reposo; rango completo sin gran esfuerzo.", "3: Moderado. Rigidez marcada; rango completo requiere fuerza del médico.", "4: Grave. Rigidez severa; no se logra el rango completo de movimiento."] },
+    { t: "3.4 Finger Tapping", s:["MSD", "MSI"], op: ["0: Normal.", "1: Mínimo. 1-2 interrupciones o enlentecimiento leve del ritmo.", "2: Leve. 3-5 interrupciones o disminución clara de la amplitud.", "3: Moderado. >5 interrupciones o detenciones prolongadas (freezing).", "4: Grave. Apenas puede realizar 1 o 2 movimientos; gran lentitud."] },
+    { t: "3.5 Movimientos manos (Abrir/Cerrar)", s:["MSD", "MSI"], op: ["0: Normal.", "1: Mínimo. Enlentecimiento mínimo o 1-2 interrupciones.", "2: Leve. 3-5 interrupciones; la amplitud disminuye conforme repite.", "3: Moderado. Interrupciones frecuentes; se detiene el movimiento.", "4: Grave. Incapaz de abrir y cerrar la mano con ritmo."] },
+    { t: "3.6 Pronación-Supinación (Manos)", s:["MSD", "MSI"], op: ["0: Normal.", "1: Mínimo. Enlentecimiento o ritmo roto 1-2 veces.", "2: Leve. 3-5 interrupciones; amplitud claramente reducida.", "3: Moderado. Interrupciones constantes; el movimiento es torpe.", "4: Grave. Apenas puede realizar el giro de la muñeca."] },
+    { t: "3.7 Toe Tapping (Pies)", s:["MID", "MII"], op: ["0: Normal.", "1: Mínimo. Ritmo algo lento o 1-2 pausas.", "2: Leve. 3-5 pausas; disminución de la altura del golpe.", "3: Moderado. Pausas frecuentes; apenas levanta el pie.", "4: Grave. Incapaz de golpear el suelo rítmicamente."] },
+    { t: "3.8 Agilidad de piernas", s:["MID", "MII"], op: ["0: Normal.", "1: Mínimo. 1-2 interrupciones; altura del talón algo baja.", "2: Leve. 3-5 interrupciones; movimiento claramente lento.", "3: Moderado. Se detiene varias veces o requiere gran esfuerzo.", "4: Grave. Apenas puede levantar la pierna del suelo."] },
+    { t: "3.9 Levantarse de silla", s:["Evaluación"], op: ["0: Normal. Rápido y sin usar brazos.", "1: Mínimo. Lento o requiere más de un intento; no usa brazos.", "2: Leve. Se empuja con los brazos pero se levanta fácil.", "3: Moderado. Necesita varios impulsos y ayuda de los brazos.", "4: Grave. No puede levantarse sin ayuda de otra persona."] },
+    { t: "3.10 Marcha", s:["Evaluación"], op: ["0: Normal.", "1: Mínimo. Camina lento o con braceo disminuido; no arrastra.", "2: Leve. Arrastre de pies evidente; pasos algo cortos.", "3: Moderado. Pasos muy cortos (festinación) o requiere andador.", "4: Grave. No puede caminar sin ayuda física constante."] },
+    { t: "3.11 Freezing (Congelación)", s:["Evaluación"], op: ["0: Normal.", "1: Mínimo. 1 detención breve al girar o iniciar.", "2: Leve. Detenciones frecuentes en giros; recupera solo.", "3: Moderado. Se congela en línea recta al caminar.", "4: Grave. Bloqueos tan largos que impiden la marcha."] },
+    { t: "3.12 Estabilidad postural (Pull test)", s:["Evaluación"], op: ["0: Normal. 1 o 2 pasos para recuperar.", "1: Mínimo. 3 a 5 pasos; recupera sin ayuda.", "2: Leve. >5 pasos; recuperaría pero el médico debe estar atento.", "3: Moderado. Cae hacia atrás si el médico no lo sujeta.", "4: Grave. Muy inestable; pierde el equilibrio espontáneamente."] },
+    { t: "3.13 Postura del tronco", s:["Evaluación"], op: ["0: Normal.", "1: Mínimo. Postura ligeramente encorvada; normal para la edad.", "2: Leve. Inclinación evidente; puede erguirse si se le pide.", "3: Moderado. Inclinación marcada; no puede erguirse del todo.", "4: Grave. Flexión extrema o escoliosis severa."] },
+    { t: "3.14 Bradicinesia global", s:["Evaluación"], op: ["0: Normal.", "1: Mínima. Lentitud sutil en movimientos combinados.", "2: Leve. Lentitud evidente en todos los movimientos corporales.", "3: Moderado. Movimientos muy lentos y de pequeña amplitud.", "4: Grave. Lentitud extrema; casi acinético."] },
+    { t: "3.15 Temblor Postural", s:["MSD", "MSI"], op: ["0: Ausente.", "1: Mínimo. Amplitud < 1 cm.", "2: Leve. Amplitud entre 1 y 3 cm.", "3: Moderado. Amplitud entre 3 y 10 cm.", "4: Grave. Amplitud > 10 cm; gran oscilación."] },
+    { t: "3.16 Temblor de Acción", s:["MSD", "MSI"], op: ["0: Ausente.", "1: Mínimo. < 1 cm durante el movimiento.", "2: Leve. 1 a 3 cm; interfiere poco con la puntería.", "3: Moderado. 3 a 10 cm; dificultad para tocar el objetivo.", "4: Grave. > 10 cm; movimiento errático y violento."] },
+    { t: "3.17 Temblor Reposo Amp.", s:["MSD", "MSI", "MID", "MII", "Labio"], op: ["0: Ausente.", "1: < 1 cm de amplitud intermitente.", "2: 1 a 3 cm de amplitud persistente.", "3: 3 a 10 cm; temblor de reposo moderado.", "4: > 10 cm; temblor de gran amplitud y fuerza."] },
+    { t: "3.18 Persistencia del temblor de reposo", s:["Evaluación"], op: ["0: Ausente.", "1: Presente < 25% del tiempo del examen.", "2: Presente entre 26% y 50% del tiempo.", "3: Presente entre 51% y 75% del tiempo.", "4: Presente > 75% de la evaluación motora."] }
+];
+
+const p4Data = [
+    { sub: "DISCINESIAS (Movimientos Involuntarios)", items: [
+        { t: "4.1 Tiempo con Discinesias", s:["% Tiempo del día"], c: "D", op: ["0: Normal. No presenta discinesias.", "1: Mínimo. Presentes menos del 25% de las horas despierto.", "2: Leve. Presentes entre 26% y 50% del día.", "3: Moderado. Presentes entre 51% y 75% del día.", "4: Grave. Presentes más del 75% del tiempo despierto."] },
+        { t: "4.2 Impacto de Discinesias", s:["Gravedad Funcional"], op: ["0: Normal. No interfieren con ninguna actividad.", "1: Mínimo. Siente los movimientos pero no afectan tareas.", "2: Leve. Interfieren en actividades finas pero realiza todo.", "3: Moderado. No puede realizar algunas tareas diarias comunes.", "4: Grave. Incapacidad para la mayoría de las actividades."] }
+    ]},
+    { sub: "FLUCTUACIONES MOTORAS (Periodos OFF)", items: [
+        { t: "4.3 Tiempo en OFF", s:["% Tiempo del día"], c: "O", op: ["0: Normal. No presenta periodos OFF.", "1: Mínimo. Menos del 25% de las horas despierto en OFF.", "2: Leve. Entre 26% y 50% del día en estado OFF.", "3: Moderado. Entre 51% y 75% del día en estado OFF.", "4: Grave. El paciente está en OFF más del 75% del día."] },
+        { t: "4.5 Complejidad del OFF", s:["Predecibilidad"], op: ["0: Normal. Sin fluctuaciones.", "1: Mínimo. El 75% de los periodos OFF son predecibles.", "2: Leve. Entre 51% y 75% son predecibles según la dosis.", "3: Moderado. Solo el 26%-50% de los OFF son predecibles.", "4: Grave. Menos del 25% son predecibles (OFF súbitos)."] }
+    ]},
+    { sub: "DISTONÍAS (Calambres/Posturas en OFF)", items: [
+        { t: "4.6 Distonía Dolorosa OFF", s:["Frecuencia en OFF"], c: "DO", op: ["0: Normal. Sin distonías dolorosas.", "1: Mínimo. Ocurren en < 25% del tiempo que está en OFF.", "2: Leve. Ocurren entre el 26% y 50% del tiempo en OFF.", "3: Moderado. Ocurren entre el 51% y 75% del tiempo en OFF.", "4: Grave. Ocurren en > 75% de sus periodos OFF."] }
+    ]}
+];
+
+// --- MOTOR DE RENDER ---
+function render(id, datos, seccKey) {
+    const contenedor = document.getElementById(id);
+    datos.forEach((preg, pIdx) => {
+        if(preg.sub) {
+            contenedor.innerHTML += `<div class="subtitulo-seccion" id="subtitulo-${seccKey}-${pIdx}">${preg.sub}</div>`;
+            preg.items.forEach((item, iIdx) => renderCard(item, `${seccKey}-${pIdx}-${iIdx}`, contenedor, seccKey, `subtitulo-${seccKey}-${pIdx}`));
+        } else {
+            renderCard(preg, `${seccKey}-${pIdx}`, contenedor, seccKey);
+        }
+    });
+}
+
+function renderCard(preg, fullId, contenedor, seccKey, subId = null) {
+    let html = `<div class="pregunta-card" id="card-${fullId}" data-sub="${subId}"><div class="titulo-preg"><span>${preg.t}</span><span class="subtotal-preg" id="sub-${fullId}">NE</span></div><div class="cuerpo-preg">`;
+    if(preg.q) html += `<span class="pregunta-entrevista no-print">${preg.q}</span>`;
+    
+    preg.s.forEach((sub, sIdx) => {
+        html += `<div class="sub-item"><label>${sub}: </label>`;
+        if(preg.c) {
+            let label1 = preg.c === 'DO' ? "Horas OFF" : "Horas Despierto";
+            let label2 = preg.c === 'D' ? "Horas Discinesia" : (preg.c === 'O' ? "Horas en OFF" : "Horas Distonía");
+            html += `<div class="calc-row no-print">
+                <div class="calc-input-group">${label1}: <input type="number" id="h1-${fullId}" oninput="calcP('${fullId}')"></div>
+                <div class="calc-input-group">${label2}: <input type="number" id="h2-${fullId}" oninput="calcP('${fullId}')"></div>
+            </div>`;
+        }
+        html += `<select class="score-input ne-style" id="sel-${fullId}-${sIdx}" data-secc="${seccKey}" data-card="${fullId}" onchange="updateScore(this)">
+            <option value="NE" selected>NE</option>
+            ${preg.op.map((o, i) => `<option value="${i}">${o}</option>`).join('')}</select></div>`;
+    });
+    contenedor.innerHTML += html + `</div></div>`;
+}
+
+function calcP(id) {
+    const h1 = parseFloat(document.getElementById(`h1-${id}`).value) || 0;
+    const h2 = parseFloat(document.getElementById(`h2-${id}`).value) || 0;
+    const sel = document.getElementById(`sel-${id}-0`);
+    if(h1 > 0) {
+        const p = (h2/h1)*100;
+        sel.value = p > 75 ? 4 : p > 50 ? 3 : p > 25 ? 2 : p > 0 ? 1 : 0;
+        updateScore(sel);
+    }
+}
+
+function updateScore(el) {
+    el.classList.toggle('ne-style', el.value === "NE");
+    const cardId = el.getAttribute('data-card');
+    document.getElementById(`sub-${cardId}`).innerText = el.value === "NE" ? "NE" : el.value + " pts";
+    totalizar();
+}
+
+function totalizar() {
+    let g = 0;
+    ['p1', 'p2', 'p3', 'p4'].forEach((s, i) => {
+        let sum = 0, ev = false;
+        document.querySelectorAll(`.score-input[data-secc="${s}"]`).forEach(sel => {
+            if(sel.value !== "NE") { sum += parseInt(sel.value); ev = true; }
+        });
+        document.getElementById('t' + (i+1)).innerText = ev ? sum : "NE";
+        if(ev) g += sum;
+    });
+    document.getElementById('t-global').innerText = g + " pts";
+}
+
+function showTab(id) {
+    document.querySelectorAll('.seccion-contenido, .tab-btn').forEach(e => e.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function prepararImpresion() {
+    document.querySelectorAll('.pregunta-card').forEach(card => {
+        const select = card.querySelector('select');
+        card.classList.toggle('ne-hidden', select.value === "NE");
+    });
+
+    document.querySelectorAll('.subtitulo-seccion').forEach(sub => {
+        const id = sub.id;
+        const visible = document.querySelectorAll(`.pregunta-card[data-sub="${id}"]:not(.ne-hidden)`);
+        sub.classList.toggle('ne-hidden', visible.length === 0);
+    });
+
+    window.print();
+}
+
+render('render-p1', p1Data, 'p1');
+render('render-p2', p2Data, 'p2');
+render('render-p3', p3Data, 'p3');
+render('render-p4', p4Data, 'p4');
+</script>
+</body>
+</html>
